@@ -138,6 +138,16 @@ class MatrixCLITest(unittest.TestCase):
         bad = self.write_raw("bad", "100000 100000\n1\n")
         self.assertFails(self.run_cli("det", bad), "out of range")
 
+    def test_extra_values_rejected(self):
+        # header says 2x2 but the file has five numbers: must not be ignored
+        bad = self.write_raw("bad", "2 2\n1 2\n3 4\n5\n")
+        self.assertFails(self.run_cli("det", bad), "not a valid matrix")
+
+    # ---- output precision ----------------------------------------------
+    def test_large_values_keep_precision(self):
+        a = self.write("a", [[12345.678, 0.001]])
+        self.assertMatrix(self.run_cli("transpose", a), [[12345.678], [0.001]])
+
     def test_unknown_command_shows_usage(self):
         r = self.run_cli("inverse", self.write("a", [[1]]))
         self.assertEqual(r.returncode, 1)

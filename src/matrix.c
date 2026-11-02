@@ -218,6 +218,15 @@ MatStatus mat_read_file(const char *path, Matrix **out)
         }
     }
 
+    /* Anything except whitespace after the last value means the header and
+     * the data disagree, so reject the file instead of silently ignoring it. */
+    char extra;
+    if (fscanf(fp, " %c", &extra) == 1) {
+        mat_free(m);
+        fclose(fp);
+        return MAT_ERR_PARSE;
+    }
+
     fclose(fp);
     *out = m;
     return MAT_OK;
@@ -228,7 +237,8 @@ void mat_print(FILE *fp, const Matrix *m)
     if (fp == NULL || m == NULL) return;
     for (size_t r = 0; r < m->rows; r++) {
         for (size_t c = 0; c < m->cols; c++) {
-            fprintf(fp, "%s%10.4g", c ? " " : "", AT(m, r, c));
+            /* %.10g keeps 10 significant digits; adding 0.0 turns -0 into 0 */
+            fprintf(fp, "%s%12.10g", c ? " " : "", AT(m, r, c) + 0.0);
         }
         fputc('\n', fp);
     }

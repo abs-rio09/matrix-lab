@@ -83,7 +83,7 @@ int main(int argc, char **argv)
     else {
         double det = 0.0;
         st = mat_det(a, &det);
-        if (st == MAT_OK) printf("%.6g\n", det);
+        if (st == MAT_OK) printf("%.10g\n", det + 0.0); /* + 0.0 avoids printing -0 */
     }
 
     if (st != MAT_OK) {
